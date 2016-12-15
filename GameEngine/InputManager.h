@@ -14,12 +14,15 @@ public:
 	void releaseKey(unsigned int keyID);
 
 	void setMouseCoords(float x, float y);
+	void setDeltaMouse(float dx, float dy);
+
 	void setWheel(float wheel);
 	bool isKeyDown(unsigned int keyID);
 
 	bool isKeyPressed(unsigned int keyID);
 
 	glm::vec2 getMouseCoords() const { return _mouseCoords; }
+	glm::vec2 getMouseDelta() const { return _mouseDelta; }
 	float getWheel();
 private:
 	bool wasKeyDown(unsigned int keyID);
@@ -27,5 +30,6 @@ private:
 	std::unordered_map<unsigned int, bool> _keyMap;
 	std::unordered_map<unsigned int, bool> _previousKeyMap;
 	glm::vec2 _mouseCoords;
+	glm::vec2 _mouseDelta;
 };
 

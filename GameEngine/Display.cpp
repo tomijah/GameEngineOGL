@@ -43,6 +43,7 @@ void Display::HandleInput(InputManager * inputManager)
 			break;
 		case SDL_MOUSEMOTION:
 			inputManager->setMouseCoords((float)e.motion.x, (float)e.motion.y);
+			inputManager->setDeltaMouse(e.motion.xrel, e.motion.yrel);
 			break;
 		case SDL_KEYDOWN:
 			inputManager->pressKey(e.key.keysym.sym);

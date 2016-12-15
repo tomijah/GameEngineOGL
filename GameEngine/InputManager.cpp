@@ -28,6 +28,11 @@ void InputManager::setMouseCoords(float x, float y) {
 	_mouseCoords.y = y;
 }
 
+void InputManager::setDeltaMouse(float dx, float dy)
+{
+	_mouseDelta = glm::vec2(dx, dy);
+}
+
 void InputManager::setWheel(float wheel)
 {
 	this->wheel = wheel;
