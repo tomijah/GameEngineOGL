@@ -43,6 +43,14 @@ int main(int argc, char** argv) {
 	Model human("models/human.obj");
 	human.Position = glm::vec3(4.0f, 0, 0);
 
+	std::vector<Model> humans;
+
+	for (int i = 0; i < 100; i++) {
+		Model h = human;
+		h.Position = glm::vec3(4.0f, 0, -1.0 * (i + 1));
+		humans.push_back(h);
+	}
+
 	//scene
 	Scene scene;
 	scene.models.push_back(&plane);
@@ -50,15 +58,19 @@ int main(int argc, char** argv) {
 	scene.models.push_back(&skeleton);
 	scene.models.push_back(&human);
 
-	scene.directionLight.apply = false;
-	scene.directionLight.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+	for (int i = 0; i < 20; i++) {
+		scene.models.push_back(&humans[i]);
+	}
 
-	PointLight p;
-	p.apply = true;
-	p.position = glm::vec3(0, 1.0f, 1.0f);
-	p.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-	scene.pointLights.push_back(p);
-	PointLight* pl = &scene.pointLights[0];
+	scene.directionLight.apply = true;
+	scene.directionLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+
+	//PointLight p;
+	//p.apply = true;
+	//p.position = glm::vec3(0, 1.0f, 1.0f);
+	//p.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	//scene.pointLights.push_back(p);
+	//PointLight* pl = &scene.pointLights[0];
 
 	while (!display.IsClosed()) {
 		input.update();
@@ -128,7 +140,7 @@ int main(int argc, char** argv) {
 			suit.recalculateMatrix = true;
 		}
 
-		if (input.isKeyDown(SDLK_q)) {
+	/*	if (input.isKeyDown(SDLK_q)) {
 			pl->position.y += display.deltaTime / 1000.f;
 			scene.updateLights = true;
 		}
@@ -136,7 +148,7 @@ int main(int argc, char** argv) {
 		if (input.isKeyDown(SDLK_e)) {
 			pl->position.y -= display.deltaTime / 1000.f;
 			scene.updateLights = true;
-		}
+		}*/
 
 		//draw
 		glClearDepth(1.0);

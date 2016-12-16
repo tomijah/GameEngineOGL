@@ -22,7 +22,6 @@ class Mesh
 {
 public:
 	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, Material material);
-	
 	~Mesh();
 	void Draw(ShaderBase shader);
 	void RemoveBuffers();

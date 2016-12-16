@@ -25,8 +25,11 @@ struct PointLight {
 class Scene
 {
 public:
-	Scene();
-	~Scene();
+	void CleanUp() {
+		for (auto m = models.begin(); m != models.end(); m++) {
+			(*m)->CleanUp();
+		}
+	}
 	std::vector<Model*> models;
 	std::vector<PointLight> pointLights;
 	void Draw(ShaderBase shader);

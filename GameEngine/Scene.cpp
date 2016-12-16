@@ -1,16 +1,5 @@
 #include "Scene.h"
 
-
-
-Scene::Scene()
-{
-}
-
-
-Scene::~Scene()
-{
-}
-
 void Scene::Draw(ShaderBase shader)
 {
 	if (updateLights) {
@@ -29,6 +18,10 @@ void Scene::setLights(ShaderBase shader)
 	glUniform3f(glGetUniformLocation(shader.Program, "dirLight.ambient"), directionLight.ambient.r, directionLight.ambient.g, directionLight.ambient.b);
 	glUniform3f(glGetUniformLocation(shader.Program, "dirLight.diffuse"), directionLight.diffuse.r, directionLight.diffuse.g, directionLight.diffuse.b);
 	glUniform1i(glGetUniformLocation(shader.Program, "dirLight.apply"), directionLight.apply);
+
+	if (pointLights.size() == 0) {
+		return;
+	}
 
 	for (GLuint i = 0; i < 16; i++) {
 		std::string number = std::to_string(i);

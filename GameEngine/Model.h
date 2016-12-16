@@ -33,12 +33,10 @@ public:
 			this->meshes[i].Draw(shader);
 	}
 
-	~Model() {
+	void CleanUp() {
 		for (auto m = meshes.begin(); m != meshes.end(); m++) {
 			m->RemoveBuffers();
 		}
-
-		std::cout << "Model delete" << std::endl;
 	}
 
 	glm::mat4 getMatrix();
@@ -47,8 +45,9 @@ public:
 	glm::vec3 Rotation = glm::vec3(0);
 	glm::vec3 Scale = glm::vec3(1);
 	bool recalculateMatrix = true;
-private:
 	std::vector<Mesh> meshes;
+private:
+	
 	void loadModel(std::string path);
 	void processNode(aiNode* node, const aiScene* scene);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
