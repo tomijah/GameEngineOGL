@@ -10,6 +10,8 @@
 #include "Model.h"
 #include "Camera.h"
 #include "Scene.h"
+#include "Hero.h"
+
 #define WIDTH 800
 #define HEIGHT 600
 
@@ -17,12 +19,12 @@ int main(int argc, char** argv) {
 	InputManager input;
 	Display display(WIDTH, HEIGHT, "Game");
 	display.InitGL(false);
-	
+
 	//camera setup
 	Camera camera;
-	camera.Target = glm::vec3(0.0f, 2.0f, 0.0f);
-	camera.Position = glm::vec3(0.0f, 2.0f, 2.0f);
-	
+	camera.Target = glm::vec3(0.0f, 0.0f, 0.0f);
+	camera.Position = glm::vec3(5.0f, 10.0f, 5.0f);
+
 	//shader setup
 	MeshShader shader;
 	shader.Use();
@@ -43,34 +45,25 @@ int main(int argc, char** argv) {
 	Model human("models/human.obj");
 	human.Position = glm::vec3(4.0f, 0, 0);
 
-	std::vector<Model> humans;
-
-	for (int i = 0; i < 100; i++) {
-		Model h = human;
-		h.Position = glm::vec3(4.0f, 0, -1.0 * (i + 1));
-		humans.push_back(h);
-	}
-
 	//scene
 	Scene scene;
 	scene.models.push_back(&plane);
 	scene.models.push_back(&suit);
 	scene.models.push_back(&skeleton);
-	scene.models.push_back(&human);
-
-	for (int i = 0; i < 20; i++) {
-		scene.models.push_back(&humans[i]);
-	}
 
 	scene.directionLight.apply = true;
 	scene.directionLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 
-	//PointLight p;
-	//p.apply = true;
-	//p.position = glm::vec3(0, 1.0f, 1.0f);
-	//p.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-	//scene.pointLights.push_back(p);
-	//PointLight* pl = &scene.pointLights[0];
+	PointLight p;
+	p.apply = false;
+	p.position = glm::vec3(0, 1.0f, 1.0f);
+	p.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	scene.pointLights.push_back(p);
+	PointLight* pl = &scene.pointLights[0];
+
+
+	Hero hero(&suit);
+
 
 	while (!display.IsClosed()) {
 		input.update();
@@ -78,19 +71,17 @@ int main(int argc, char** argv) {
 		display.UpdateTime();
 
 		//update
-		
+
 		glm::mat4 view = camera.getMatrix();
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
 
-		if (input.isKeyPressed(SDL_BUTTON_LEFT)) {
+		if (input.isKeyDown(SDL_BUTTON_LEFT)) {
 			GLfloat winZ;
 			glm::vec2 mousePos = input.getMouseCoords();
 			glReadPixels((int)mousePos.x, HEIGHT - (int)mousePos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
 			glm::vec3 objPt = glm::unProject(glm::vec3(mousePos.x, HEIGHT - mousePos.y, winZ), camera.getMatrix(), projection, glm::vec4(0, 0, WIDTH, HEIGHT));
-			suit.Position.x = objPt.x;
-			suit.Position.z = objPt.z;
-			suit.recalculateMatrix = true;
+			hero.move(glm::vec3(objPt.x, 0, objPt.z));
 		}
 
 
@@ -140,7 +131,7 @@ int main(int argc, char** argv) {
 			suit.recalculateMatrix = true;
 		}
 
-	/*	if (input.isKeyDown(SDLK_q)) {
+		if (input.isKeyDown(SDLK_q)) {
 			pl->position.y += display.deltaTime / 1000.f;
 			scene.updateLights = true;
 		}
@@ -148,12 +139,21 @@ int main(int argc, char** argv) {
 		if (input.isKeyDown(SDLK_e)) {
 			pl->position.y -= display.deltaTime / 1000.f;
 			scene.updateLights = true;
-		}*/
+		}
+
+		hero.update(display.deltaTime);
+
+		glm::vec3 cameraTranslate = hero.model->Position - camera.Target;
+		camera.Position += cameraTranslate;
+		camera.Target += cameraTranslate;
+		camera.recalculateMatrix = true;
+
+		std::cout << suit.Rotation.y << std::endl;
 
 		//draw
 		glClearDepth(1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		
+
 		scene.Draw(shader);
 		display.SwapBuffers();
 
