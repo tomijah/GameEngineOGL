@@ -12,15 +12,27 @@ Mesh::~Mesh()
 {
 }
 
-void Mesh::Draw(ShaderBase shader)
+void Mesh::Draw(ShaderBase *shader)
 {
-	glUniform1f(glGetUniformLocation(shader.Program, "material.shininess"), this->material.shininess);
-	glUniform3f(glGetUniformLocation(shader.Program, "material.color"), this->material.color.r, this->material.color.g, this->material.color.b);
-	glUniform1i(glGetUniformLocation(shader.Program, "material.hasTexture"), this->material.hasTexture);
+	shader->SetFloat("material.shininess", this->material.shininess);
+	shader->SetVector3f("material.color", this->material.color);
+	shader->SetInteger("material.hasTexture", this->material.hasTexture);
+	shader->SetInteger("material.hasSpecularMap", this->material.hasSpecularMap);
+	shader->SetInteger("material.applyLights", this->material.applyLights);
 	if (this->material.diffuseTextureId > 0) {
 		glActiveTexture(GL_TEXTURE0);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, this->material.diffuseTextureId);
+		GLint loc = glGetUniformLocation(shader->Program, "diffuseTexture");
+		glUniform1i(loc, 0);
+	}
+
+	if (this->material.specularMapTextureId > 0) {
+		glActiveTexture(GL_TEXTURE1);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, this->material.specularMapTextureId);
+		GLint loc = glGetUniformLocation(shader->Program, "specularMap");
+		glUniform1i(loc, 1);
 	}
 
 	glBindVertexArray(this->VAO);

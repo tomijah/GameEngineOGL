@@ -7,7 +7,8 @@ Display::Display(int width, int height, const std::string& title) : _width(width
 	_isClosed = false;
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -15,12 +16,13 @@ Display::Display(int width, int height, const std::string& title) : _width(width
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
 	window = SDL_CreateWindow(title.c_str(),
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		width, height,
-		SDL_WINDOW_OPENGL);
+		SDL_WINDOW_OPENGL);// | SDL_WINDOW_FULLSCREEN);
 	_glContext = SDL_GL_CreateContext(window);
 }
 
@@ -35,7 +37,9 @@ void Display::HandleInput(InputManager * inputManager)
 {
 	SDL_Event e;
 	inputManager->setWheel(0.0f);
+	inputManager->setDeltaMouse(0, 0);
 	while (SDL_PollEvent(&e)) {
+		
 		switch (e.type)
 		{
 		case SDL_QUIT:
@@ -75,6 +79,11 @@ bool Display::IsClosed()
 	return _isClosed;
 }
 
+void Display::Close()
+{
+	_isClosed = true;
+}
+
 void Display::EnableCursor()
 {
 	SDL_ShowCursor(SDL_ENABLE);
@@ -100,6 +109,8 @@ void Display::InitGL(bool vsync)
 
 	//antialiasing
 	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_POLYGON_SMOOTH);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	
 	//vsync

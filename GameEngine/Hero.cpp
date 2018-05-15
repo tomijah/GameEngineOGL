@@ -1,17 +1,17 @@
 #include "Hero.h"
-
-
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/norm.hpp>
+using namespace glm;
 
 Hero::~Hero() 
 {
 }
 
-
 Hero::Hero(Model * soureModel) :model(soureModel)
 {
 	moveTarget = soureModel->Position;
-	model->Rotation.y = glm::pi<float>() * 2;
-	rotationTarget = soureModel->Rotation.y;
 }
 
 void Hero::move(glm::vec3 target)
@@ -19,7 +19,6 @@ void Hero::move(glm::vec3 target)
 	moveTarget = target;
 	glm::vec3 moveVector = moveTarget - model->Position;
 	rotationTarget = glm::atan(moveVector.x, moveVector.z);
-
 	moving = true;
 	rotating = true;
 }
@@ -44,26 +43,10 @@ void Hero::update(GLfloat deltaT)
 			}
 		}
 
-		if (rotating) {
-			GLfloat rotationDelta = deltaT * rotationSpeed / 1000.0f;
-			GLfloat rotationDistance = glm::abs(model->Rotation.y - rotationTarget);
-			
-			if (rotationDistance > rotationDelta) {
-				if (model->Rotation.y < rotationTarget) {
-					model->Rotation.y += rotationDelta;
-				}
-				else {
-					model->Rotation.y -= rotationDelta;
-				}
-			}
-			else
-			{
-				model->Rotation.y = rotationTarget;
-				rotating = false;
-			}
-		}
-
-		std::cout << model->Rotation.y << std::endl;
+		
+		glm::quat targetRot;
+		targetRot = glm::rotate(targetRot, rotationTarget, glm::vec3(0, 1, 0));
+		model->Rotation = slerp(model->Rotation, targetRot, 0.1f);
 
 		model->recalculateMatrix = true;
 	}

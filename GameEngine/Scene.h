@@ -2,11 +2,18 @@
 #include "Utils.h"
 #include "Model.h"
 #include "ShaderBase.h"
+#include "Camera.h"
 
 struct DirLight {
 	glm::vec3 direction = glm::vec3(-1.0f, -1.0f, -1.0f);
 	glm::vec3 ambient = glm::vec3(0);
 	glm::vec3 diffuse = glm::vec3(1);
+	glm::mat4 getViewMatrix() {
+		glm::vec3 lightPosition = glm::vec3(12.0f, 12.0f, 12.0f); //glm::vec3(0) - direction * 5.0f;
+		return glm::lookAt(lightPosition,
+			glm::vec3(0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f));;
+	}
 	bool apply;
 };
 
@@ -32,10 +39,11 @@ public:
 	}
 	std::vector<Model*> models;
 	std::vector<PointLight> pointLights;
-	void Draw(ShaderBase shader);
+	void Draw(ShaderBase *shader, Camera *camera);
+	void DrawShadowMap(ShaderBase *shader, DirLight *light);
 	DirLight directionLight;
 	bool updateLights = true;
 private:
-	void setLights(ShaderBase shader);
+	void setLights(ShaderBase *shader);
 };
 

@@ -1,15 +1,14 @@
 #include "Model.h"
+using namespace glm;
 
 glm::mat4 Model::getMatrix()
 {
 	if (recalculateMatrix) {
-		glm::mat4 mat;
-		mat = glm::translate(mat, this->Position);
-		mat = glm::rotate(mat, this->Rotation.x, glm::vec3(1, 0, 0));
-		mat = glm::rotate(mat, this->Rotation.y, glm::vec3(0, 1, 0));
-		mat = glm::rotate(mat, this->Rotation.z, glm::vec3(0, 0, 1));
-		mat = glm::scale(mat, this->Scale);
-		this->modelMatrix = mat;
+		glm::mat4 trans;
+		trans = glm::translate(trans, this->Position);
+		glm::mat4 scale;
+		scale = glm::scale(scale, this->Scale);
+		this->modelMatrix = trans * mat4_cast(this->Rotation) * scale;
 		this->recalculateMatrix = false;
 	}
 
@@ -77,11 +76,12 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
 		aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
 		aiColor3D color;
 		mat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-		float shininessStrength = 1;
+		float shininessStrength = 0;
 		mat->Get(AI_MATKEY_SHININESS_STRENGTH, shininessStrength);
-		
+		std::cout << shininessStrength << std::endl;
 		material.color = glm::vec3(color.r, color.g, color.b);
 		material.shininess = shininessStrength;
+		
 		material.hasTexture = false;
 
 		if (mat->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
@@ -93,6 +93,18 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
 			material.diffuseTextureId = tex.Id;
 			material.hasTexture = true;
 		}
+
+		if (mat->GetTextureCount(aiTextureType_SPECULAR) > 0) {
+			aiString texturePath;
+			mat->GetTexture(aiTextureType_SPECULAR, 0, &texturePath);
+			std::string filename = texturePath.C_Str();
+			filename = directory + '/' + filename;
+			Texture tex = TextureCache::getTexture(filename);
+			material.specularMapTextureId = tex.Id;
+			material.hasSpecularMap = true;
+		}
+		
+		//std::cout << mat->GetTextureCount(aiTextureType_HEIGHT) << std::endl;
 	}
 
 	return Mesh(vertices, indices, material);

@@ -12,6 +12,7 @@ public:
 	void HandleInput(InputManager * inputManager);
 	void SwapBuffers();
 	bool IsClosed();
+	void Close();
 	void EnableCursor();
 	void DisableCursor();
 	void InitGL(bool vsync);

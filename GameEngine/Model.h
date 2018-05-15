@@ -11,6 +11,9 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 class Model
 {
@@ -24,9 +27,9 @@ public:
 		this->meshes = meshes;
 	}
 
-	void Draw(ShaderBase shader)
+	void Draw(ShaderBase *shader)
 	{
-		GLuint modelLoc = glGetUniformLocation(shader.Program, "model");
+		GLuint modelLoc = glGetUniformLocation(shader->Program, "model");
 		glm::mat4 model = this->getMatrix();
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		for (GLuint i = 0; i < this->meshes.size(); i++)
@@ -42,7 +45,7 @@ public:
 	glm::mat4 getMatrix();
 
 	glm::vec3 Position = glm::vec3(0);
-	glm::vec3 Rotation = glm::vec3(0);
+	glm::quat Rotation = glm::quat();
 	glm::vec3 Scale = glm::vec3(1);
 	bool recalculateMatrix = true;
 	std::vector<Mesh> meshes;
