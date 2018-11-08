@@ -1,6 +1,6 @@
 #include "Scene.h"
 
-void Scene::Draw(ShaderBase *shader, Camera *camera)
+void Scene::Draw(ShaderBase *shader, Camera *camera, bool simpl)
 {
 	//shader->Use();
 	shader->SetMatrix4("view", camera->getViewMatrix());
@@ -17,7 +17,7 @@ void Scene::Draw(ShaderBase *shader, Camera *camera)
 	}
 
 	for (auto i = models.begin(); i != models.end(); i++) {
-		(*i)->Draw(shader);
+		(*i)->Draw(shader, simpl);
 	}
 }
 

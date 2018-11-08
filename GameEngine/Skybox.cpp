@@ -56,7 +56,7 @@ Skybox::Skybox(std::vector<std::string> faces)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	_textureId = TextureCache::loadCubeMap(faces);
+	textureId = TextureCache::loadCubeMap(faces);
 }
 
 
@@ -64,7 +64,7 @@ Skybox::~Skybox()
 {
 	glDeleteVertexArrays(1, &_vao);
 	glDeleteBuffers(1, &_vbo);
-	glDeleteTextures(1, &_textureId);
+	glDeleteTextures(1, &textureId);
 }
 
 void Skybox::Draw(ShaderBase *shader, Camera *camera)
@@ -75,7 +75,7 @@ void Skybox::Draw(ShaderBase *shader, Camera *camera)
 	shader->SetMatrix4("projection", camera->Projection);
 	glBindVertexArray(_vao);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, _textureId);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureId);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS);

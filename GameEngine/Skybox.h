@@ -12,8 +12,8 @@ public:
 	Skybox(std::vector<std::string> faces);
 	~Skybox();
 	void Draw(ShaderBase *shader, Camera *camera);
+	GLuint textureId;
 private:
-	GLuint _textureId;
 	GLuint _vao;
 	GLuint _vbo;
 };

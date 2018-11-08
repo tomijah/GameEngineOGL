@@ -39,7 +39,7 @@ public:
 	}
 	std::vector<Model*> models;
 	std::vector<PointLight> pointLights;
-	void Draw(ShaderBase *shader, Camera *camera);
+	void Draw(ShaderBase *shader, Camera *camera, bool simpl = false);
 	void DrawShadowMap(ShaderBase *shader, DirLight *light);
 	DirLight directionLight;
 	bool updateLights = true;

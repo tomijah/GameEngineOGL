@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CAB02AD3-3E44-436A-A4F9-CE47EC0BD426}</ProjectGuid>
     <RootNamespace>GameEngine</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -126,6 +126,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Display.cpp" />
+    <ClCompile Include="Fps.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="Hero.cpp" />
     <ClCompile Include="InputManager.cpp" />
@@ -143,25 +144,35 @@
       <FileType>Document</FileType>
     </None>
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="TerrainNode.cpp" />
     <ClCompile Include="TestGame.cpp" />
     <ClCompile Include="TextureCache.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <None Include="Shaders\terr.frag">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+    </None>
+    <None Include="Shaders\terr.vert">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Display.h" />
+    <ClInclude Include="Fps.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="Hero.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshShader.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Perlin.h" />
     <ClInclude Include="ProceduralTest.h" />
     <ClInclude Include="QuadRenderer.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="ShaderFromFile.h" />
     <ClInclude Include="Skybox.h" />
+    <ClInclude Include="TerrainNode.h" />
     <ClInclude Include="TestGame.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="Utils.h" />

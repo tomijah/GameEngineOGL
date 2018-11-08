@@ -19,6 +19,7 @@ struct Material {
 	bool hasTexture = false;
 	bool hasSpecularMap = false;
 	bool applyLights = true;
+	bool reflect = false;
 };
 
 class Mesh
@@ -26,8 +27,9 @@ class Mesh
 public:
 	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, Material material);
 	~Mesh();
-	void Draw(ShaderBase *shader);
+	void Draw(ShaderBase *shader, bool simpl = false);
 	void RemoveBuffers();
+	void UpdateGeometry(std::vector<Vertex> vertices, std::vector<GLuint> indices);
 	Material material;
 private:
 	std::vector<Vertex> vertices;

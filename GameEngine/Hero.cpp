@@ -47,6 +47,10 @@ void Hero::update(GLfloat deltaT)
 		glm::quat targetRot;
 		targetRot = glm::rotate(targetRot, rotationTarget, glm::vec3(0, 1, 0));
 		model->Rotation = slerp(model->Rotation, targetRot, 0.1f);
+		if (glm::dot(model->Rotation, targetRot) < 0.01f) {
+			model->Rotation = targetRot;
+			rotating = false;
+		}
 
 		model->recalculateMatrix = true;
 	}

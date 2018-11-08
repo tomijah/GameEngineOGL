@@ -15,6 +15,7 @@
 #include <vector>
 #include "Framebuffer.h"
 #include "QuadRenderer.h"
+#include "Fps.h"
 
 #define WIDTH 1280
 #define HEIGHT 720
@@ -33,7 +34,7 @@ void TestGame::Run()
 {
 	InputManager input;
 	Display display(WIDTH, HEIGHT, "Game");
-	display.InitGL(false);
+	display.InitGL(true);
 
 	//camera setup
 	Camera camera;
@@ -88,11 +89,19 @@ void TestGame::Run()
 	//Model suit("models/queen/queen-of-cancelot.obj");
 	suit.Scale = glm::vec3(1.5f, 1.5f, 1.5f);
 	suit.Position = glm::vec3(0, 0, 0);
+	for (GLuint i = 0; i < suit.meshes.size(); i++) {
+		suit.meshes[i].material.reflect = true;
+		suit.meshes[i].material.shininess = 1.0f;
+	}
+
 	Model plane("models/plane.obj");
 	plane.Position = glm::vec3(0, 0, 0);
 	Model skeleton("models/deadpool/dblend.obj");
 	skeleton.Position = glm::vec3(3.0f, 0, 0);
 	skeleton.Scale = glm::vec3(0.8f, 0.8f, 0.8f);
+	for (GLuint i = 0; i < skeleton.meshes.size(); i++)
+		skeleton.meshes[i].material.reflect = true;
+
 	Model cube("models/cube.dae");
 	cube.Scale = glm::vec3(0.2f, 0.2f, 0.2f);
 	cube.Position = glm::vec3(4.0f, 0, 0);
@@ -126,6 +135,7 @@ void TestGame::Run()
 
 	Hero hero(&skeleton);
 	bool mouseRelative = false;
+	Fps fpp(&display, &camera, &input);
 	while (!display.IsClosed()) {
 		input.update();
 		display.HandleInput(&input);
@@ -148,79 +158,19 @@ void TestGame::Run()
 
 		if (input.isKeyPressed(SDLK_m)) {
 			mouseRelative = !mouseRelative;
-			SDL_SetRelativeMouseMode(mouseRelative ? SDL_TRUE : SDL_FALSE);
-		}
-
-		if (input.isKeyPressed(SDLK_ESCAPE)) {
-			display.Close();
-		}
-
-		if (input.isKeyDown(SDLK_UP)) {
-			camera.Position.y = camera.Position.y + display.deltaTime / 1000.0f;
-			camera.Target.y = camera.Target.y + display.deltaTime / 1000.0f;
-			camera.recalculateMatrix = true;
-		}
-
-		if (input.isKeyDown(SDLK_DOWN)) {
-			camera.Position.y = camera.Position.y - display.deltaTime / 1000.0f;
-			camera.Target.y = camera.Target.y - display.deltaTime / 1000.0f;
-			camera.recalculateMatrix = true;
-		}
-
-		if (input.isKeyDown(SDLK_LEFT)) {
-			camera.Position.x = camera.Position.x - display.deltaTime / 1000.0f;
-			camera.Target.x = camera.Target.x - display.deltaTime / 1000.0f;
-			camera.recalculateMatrix = true;
-		}
-
-		if (input.isKeyDown(SDLK_RIGHT)) {
-			camera.Position.x = camera.Position.x + display.deltaTime / 1000.0f;
-			camera.Target.x = camera.Target.x + display.deltaTime / 1000.0f;
-			camera.recalculateMatrix = true;
-		}
-
-		if (input.isKeyDown(SDLK_w)) {
-			camera.Position += camera.Target * display.deltaTime / 400.0f;
-			camera.recalculateMatrix = true;
-		}
-
-		if (input.isKeyDown(SDLK_s)) {
-			camera.Position -= camera.Target * display.deltaTime / 400.0f;
-			camera.recalculateMatrix = true;
-		}
-
-		if (input.isKeyDown(SDLK_a)) {
-			glm::vec3 plane = glm::cross(camera.Target, camera.Up);
-			camera.Position -= plane * display.deltaTime / 300.0f;
-			camera.recalculateMatrix = true;
-		}
-
-		if (input.isKeyDown(SDLK_d)) {
-			glm::vec3 plane = glm::cross(camera.Target, camera.Up);
-			camera.Position += plane * display.deltaTime / 300.0f;
-			camera.recalculateMatrix = true;
 		}
 
 		if (input.isKeyDown(SDLK_q)) {
-			suit.Rotation = glm::rotate(suit.Rotation, -display.deltaTime / 1000.f, glm::vec3(0, 1, 0));
-			suit.recalculateMatrix = true;
+			skeleton.Rotation = glm::rotate(skeleton.Rotation, -display.deltaTime / 1000.f, glm::vec3(0, 1, 0));
+			skeleton.recalculateMatrix = true;
 		}
 
 		if (input.isKeyDown(SDLK_e)) {
-			suit.Rotation = glm::rotate(suit.Rotation, display.deltaTime / 1000.f, glm::vec3(0, 1, 0));
-			suit.recalculateMatrix = true;
+			skeleton.Rotation = glm::rotate(skeleton.Rotation, display.deltaTime / 1000.f, glm::vec3(0, 1, 0));
+			skeleton.recalculateMatrix = true;
 		}
 
-		if (mouseRelative) {
-			glm::mat4 rot;
-			rot = glm::rotate(rot, input.getMouseDelta().x * (display.deltaTime / 2000.0f), camera.Up);
-			rot = glm::rotate(rot, input.getMouseDelta().y * (display.deltaTime / 2000.0f), glm::cross(camera.Target, camera.Up));
-			glm::vec4 a = glm::vec4(camera.Target.x,camera.Target.y, camera.Target.z,1.0f) * rot;
-			glm::vec3 t = glm::normalize(glm::vec3(a.x, a.y, a.z));
-			camera.Target = t;
-			camera.recalculateMatrix = true;
-		}
-
+		fpp.Update();
 		hero.update(display.deltaTime);
 
 		//draw
@@ -246,6 +196,11 @@ void TestGame::Run()
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
 		GLint loc = glGetUniformLocation(shader.Program, "shadowMap");
 		glUniform1i(loc, 3);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.textureId);
+		GLint loc2 = glGetUniformLocation(shader.Program, "skybox");
+		glUniform1i(loc2, 4);
+
 		scene.Draw(&shader, &camera);
 		skybox.Draw(&skyboxShader, &camera);
 

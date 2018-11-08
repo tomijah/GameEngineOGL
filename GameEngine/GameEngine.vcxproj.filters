@@ -78,6 +78,12 @@
     <ClCompile Include="QuadRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Fps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputManager.h">
@@ -131,6 +137,15 @@
     <ClInclude Include="QuadRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Fps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Perlin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\mesh.frag" />
@@ -142,6 +157,8 @@
     <None Include="Shaders\simple.frag">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="Shaders\terr.vert" />
+    <None Include="Shaders\terr.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\simple.vert" />

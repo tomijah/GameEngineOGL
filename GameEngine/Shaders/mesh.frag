@@ -15,6 +15,7 @@ struct Material {
 	bool hasTexture;
 	bool hasSpecularMap;
 	bool applyLights;
+	bool reflectEnv;
 };
 
 uniform Material material;
@@ -22,6 +23,7 @@ uniform Material material;
 uniform sampler2D diffuseTexture;
 uniform sampler2D specularMap;
 uniform sampler2D shadowMap;
+uniform samplerCube skybox;
 
 struct DirLight {
 	vec3 direction;
@@ -90,19 +92,28 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 	float diff = max(dot(normal, lightDir), 0.0);
 	// Specular shading
 
-	vec3 specular = vec3(material.shininess);
+	vec3 specularInit = vec3(material.shininess);
 	if(material.hasSpecularMap){
-		vec3 reflectDir = reflect(-lightDir, normal); 
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-		specular = spec * light.diffuse;
-		specular *= vec3(texture(specularMap, TexCoords)) * 2;
+		specularInit = vec3(texture(specularMap, TexCoords))*2;
 	}
+
+	vec3 specular;
+	vec3 reflectDir = reflect(-lightDir, normal); 
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	specular = spec * light.diffuse;
+	specular *= specularInit;
 
 	// Combine results
 	vec3 ambient = light.ambient * diffColor;
 	vec3 diffuse = light.diffuse * diff * diffColor;
 
-	float shadow = ShadowCalculation(FragPosLightSpace);  
+	float shadow = ShadowCalculation(FragPosLightSpace);
+	
+	if(length(specularInit)>0.1 && material.reflectEnv){
+		vec3 qsample = -normalize(reflect(viewDir,normal));
+		diffuse = mix(vec4(diffuse,1.0), texture(skybox, qsample), 0.2).xyz;
+	}
+
 	if(shadow > 0.0){
 		return (1.0 - shadow) * (ambient + diffuse);
 	}
@@ -120,13 +131,19 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 	// Diffuse shading
 	float diff = max(dot(normal, lightDir), 0.0);
 	// Specular shading
-	vec3 specular = vec3(material.shininess);
+	vec3 specularInit = vec3(material.shininess);
+	if(material.hasSpecularMap){
+		specularInit = vec3(texture(specularMap, TexCoords))*2;
+	}
+
+	vec3 specular;
 	if(material.hasSpecularMap){
 		vec3 reflectDir = reflect(-lightDir, normal); 
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
 		specular = spec * light.diffuse;  
-		specular *= vec3(texture(specularMap, TexCoords)) * 2;
+		specular *= specularInit;
 	}
+
 	// Attenuation
 	float dist = length(light.position - fragPos);
 	float attenuation = 1.0f / (light.constant + light.linear * dist +
@@ -137,6 +154,12 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     ambient *= attenuation;
 	diffuse *= attenuation;
 	specular *= attenuation;
+
+	if(length(specularInit)>0.1 && material.reflectEnv){
+		vec3 qsample = -normalize(reflect(viewDir,normal));
+		diffuse = mix(vec4(diffuse,1.0), texture(skybox, qsample), 0.2).xyz;
+	}
+
 	return (ambient + diffuse + specular);
 }
 
@@ -146,6 +169,9 @@ void main()
 	vec3 viewDir = normalize(viewPos - FragPos);
 
 	vec3 result = vec3(0, 0, 0);
+
+	
+
 	if(!material.applyLights)
 	{
 		color = vec4(material.color, 1.0);

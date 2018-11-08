@@ -5,5 +5,7 @@ public:
 	ProceduralTest();
 	~ProceduralTest();
 	void Run();
+private:
+	//Model generateModel();
 };
 

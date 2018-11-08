@@ -27,13 +27,12 @@ public:
 		this->meshes = meshes;
 	}
 
-	void Draw(ShaderBase *shader)
+	void Draw(ShaderBase *shader, bool simpl = false)
 	{
-		GLuint modelLoc = glGetUniformLocation(shader->Program, "model");
 		glm::mat4 model = this->getMatrix();
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		shader->SetMatrix4("model", model);
 		for (GLuint i = 0; i < this->meshes.size(); i++)
-			this->meshes[i].Draw(shader);
+			this->meshes[i].Draw(shader, simpl);
 	}
 
 	void CleanUp() {
@@ -50,7 +49,6 @@ public:
 	bool recalculateMatrix = true;
 	std::vector<Mesh> meshes;
 private:
-	
 	void loadModel(std::string path);
 	void processNode(aiNode* node, const aiScene* scene);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
